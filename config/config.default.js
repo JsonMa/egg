@@ -32,7 +32,7 @@ module.exports = appInfo => {
     /**
      * The key that signing cookies. It can contain multiple keys seperated by `,`.
      * @member {String} Config#keys
-     * @see https://eggjs.org/zh-cn/basics/controller.html#cookie-秘钥
+     * @see http://eggjs.org/en/core/cookie-and-session.html#cookie-secret-key
      * @default
      * @since 1.0.0
      */
@@ -72,7 +72,7 @@ module.exports = appInfo => {
      * @default
      * @since 1.0.0
      */
-    hostHeaders: 'x-forwarded-host',
+    hostHeaders: '',
 
     /**
      * package.json
@@ -226,6 +226,7 @@ module.exports = appInfo => {
     agentLogName: 'egg-agent.log',
     errorLogName: 'common-error.log',
     coreLogger: {},
+    allowDebugAtProd: false,
   };
 
   /**
@@ -268,6 +269,18 @@ module.exports = appInfo => {
   };
 
   /**
+   * The option of `meta` middleware
+   *
+   * @member Config#meta
+   * @property {Boolean} enable - enable meta or not, default is true
+   * @property {Boolean} logging - enable logging start request, default is false
+   */
+  config.meta = {
+    enable: true,
+    logging: false,
+  };
+
+  /**
    * core enable middlewares
    * @member {Array} Config#middleware
    */
@@ -300,6 +313,40 @@ module.exports = appInfo => {
       hostname: '',
     },
   };
+
+  /**
+   * @property {Number} responseTimeout - response timeout, default is 60000
+   */
+  config.clusterClient = {
+    maxWaitTime: 60000,
+    responseTimeout: 60000,
+  };
+
+  /**
+   * This function / async function will be called when a client error occurred and return the response.
+   *
+   * The arguments are `err`, `socket` and `application` which indicate current client error object, current socket
+   * object and the application object.
+   *
+   * The response to be returned should include properties below:
+   *
+   * @member {Function} Config#onClientError
+   * @property [body] {String|Buffer} - the response body
+   * @property [status] {Number} - the response status code
+   * @property [headers] {Object} - the response header key-value pairs
+   *
+   * @example
+   * exports.onClientError = async (err, socket, app) => {
+   *   return {
+   *     body: 'error',
+   *     status: 400,
+   *     headers: {
+   *       'powered-by': 'Egg.js',
+   *     }
+   *   };
+   * }
+   */
+  config.onClientError = null;
 
   return config;
 };

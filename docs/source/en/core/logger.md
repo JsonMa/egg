@@ -91,7 +91,7 @@ module.exports = app => {
 };
 ```
 
-`app.coreLogger` in app is similar to `ctx.coreLogger` in context: 
+`app.coreLogger` in app is similar to `ctx.coreLogger` in context:
 
 ```js
 // app.js
@@ -154,6 +154,18 @@ exports.logger = {
 };
 ```
 
+#### DEBUG Log in Prodction Environment
+
+To avoid some plugin's DEBUG logs printing in the production environment causing performance problems, the production environment prohibits printing DEBUG-level logs by default. If there is a need to print DEBUG logs for debugging in the production environment, you need to set `allowDebugAtProd` configuration to `ture`.
+
+```js
+// config/config.prod.js
+exports.logger = {
+  level: 'DEBUG',
+  allowDebugAtProd: true,
+};
+```
+
 ### In terminal
 
 By default, Egg will only print out `INFO`, `WARN` and `ERROR` in terminal. `logger.consoleLevel`(default: `INFO`) is defined as the logger level in terminal. Similarly, it can be changed as following:
@@ -180,7 +192,7 @@ exports.logger = {
 
 ### Customized
 
-For common scenarios, **it's unnecessary to create new logger**, because too many loggers will make them hard to be managed for later debugging. 
+For common scenarios, **it's unnecessary to create new logger**, because too many loggers will make them hard to be managed for later debugging.
 
 The logger you create can be declared in config:
 
@@ -225,12 +237,10 @@ class RemoteErrorTransport extends Transport {
     } else {
       log = util.format(...args);
     }
-    const that = this;
-    co(function* () {
-      yield that.options.app.curl('http://url/to/remote/error/log/service/logs', {
-        data: log,
-        method: 'POST',
-      });
+
+    this.options.app.curl('http://url/to/remote/error/log/service/logs', {
+      data: log,
+      method: 'POST',
     }).catch(console.error);
   }
 }
@@ -263,7 +273,7 @@ module.exports = appInfo => {
       filesRotateBySize: [
         path.join(appInfo.root, 'logs', appInfo.name, 'egg-web.log'),
       ],
-      maxFileSize: 2 * 1024 * 1024,
+      maxFileSize: 2 * 1024 * 1024 * 1024,
     },
   };
 };
